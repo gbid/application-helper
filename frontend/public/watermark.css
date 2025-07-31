@@ -1,0 +1,56 @@
+@media print {
+  body::before {
+    content: "Download ohne Wasserzeichen mit Bewerbungshelfer Professional";
+    position: fixed;
+    bottom: 5%;
+    left: 50%;
+    font-size: 18px;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Large centered diagonal watermark */
+  body::after {
+    content: "Kostenlose Vorschau";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 50px;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* Top-left watermark */
+  html::before {
+    content: "Kostenlose Vorschau";
+    position: fixed;
+    top: 20%;
+    left: 20%;
+    transform: rotate(-30deg);
+    font-size: 24px;
+    color: rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 998;
+  }
+
+  /* Bottom-right watermark */
+  html::after {
+    content: "Kostenlose Vorschau";
+    position: fixed;
+    bottom: 20%;
+    right: 20%;
+    transform: rotate(-30deg);
+    font-size: 24px;
+    color: rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 997;
+  }
+}

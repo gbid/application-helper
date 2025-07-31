@@ -1,0 +1,23 @@
+#!/bin/bash
+container_name="cover-letter-db"
+
+# Check if the container already exists
+if [ "$(docker ps -qa -f name=^${container_name}$)" ]; then
+    # If it exists and it's stopped, start the container
+    if [ ! "$(docker ps -q -f name=^${container_name}$)" ]; then
+        docker start ${container_name}
+    fi
+else
+    # If it does not exist, create and start the container
+    docker run --name ${container_name} -e POSTGRES_PASSWORD=foo -d -p 5432:5432 postgres
+fi
+
+#wait 3 seconds for the server to accept connections
+sleep 3
+
+# run sqlx to create the 'cover_letter' database and run the migrations
+sqlx database create && sqlx migrate run
+# execute psql in the running container if the "interactive" flag is passed
+if [ "$1" == "--interactive" ]; then
+		docker exec -it ${container_name} psql -U postgres cover_letter
+fi

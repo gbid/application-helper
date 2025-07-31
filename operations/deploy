@@ -1,0 +1,132 @@
+#!/bin/bash
+set -e
+
+# Check if an argument was provided
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 [--production|--integration]"
+    exit 1
+fi
+
+# Set target based on argument
+case "$1" in
+    --production)
+        TARGET="bewerbungshelfer"
+        CARGO_FEATURES="production"
+        ;;
+    --integration)
+        TARGET="bewerbungshelfer-integration"
+        CARGO_FEATURES="integration"
+        ;;
+    *)
+        echo "Invalid argument. Use --production or --integration"
+        exit 1
+        ;;
+esac
+
+echo "Building and deploying to $TARGET..."
+
+# cd to project root
+cd ..
+
+echo "Setting up database..."
+cd backend/cover-letter
+./start_database
+sqlx database create && sqlx migrate run
+
+# Add this line to prepare SQLx data file
+echo "Preparing SQLx metadata..."
+cargo sqlx prepare -- --features "$CARGO_FEATURES"
+cd -
+
+# Build using Docker with Debian Bullseye (has older GLIBC)
+echo "Building backend with Docker..."
+docker run --rm \
+    -v "$(pwd)/backend:/usr/src/backend" \
+    -w /usr/src/backend/cover-letter \
+    -e SQLX_OFFLINE=true \
+    debian:bullseye bash -c '
+        apt-get update &&
+        apt-get install -y curl build-essential libssl-dev pkg-config git &&
+        curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
+        export PATH="$HOME/.cargo/bin:$PATH" &&
+        # Remove the prepare step inside Docker
+        SQLX_OFFLINE=true cargo build --release --features "production, credentials" &&
+        # Fix permissions after build
+        chown -R '"$(id -u):$(id -g)"' /usr/src/backend/target
+    '
+
+cd frontend
+npm run build
+cd -
+
+echo "Successfully built."
+
+# Deployment
+echo "Deploying to $TARGET..."
+
+ssh "$TARGET" "
+    # Create database if it doesn't exist
+    sudo -u postgres psql -c \"CREATE DATABASE cover_letter;\" || true
+"
+
+# Create user and set up directories
+ssh "$TARGET" "
+    # Create user if it doesn't exist
+    if ! id bewerbungshelfer &>/dev/null; then
+        useradd --system --create-home bewerbungshelfer
+    fi
+
+    # Create directories in user's home
+    mkdir -p /home/bewerbungshelfer/frontend
+    chown -R bewerbungshelfer:bewerbungshelfer /home/bewerbungshelfer
+"
+
+echo "rsyncing built frontend to $TARGET..."
+rsync --recursive --perms --delete --info=progress2 \
+    frontend/build/ \
+    "$TARGET:/home/bewerbungshelfer/frontend/"
+
+echo "rsyncing built backend to $TARGET..."
+rsync --perms --info=progress2 \
+    backend/target/release/cover-letter \
+    "$TARGET:/home/bewerbungshelfer/backend"
+
+echo "rsyncing systemd config file to $TARGET..."
+rsync --perms --info=progress2 \
+    operations/bewerbungshelfer.service \
+    "$TARGET:/etc/systemd/system/"
+
+echo "rsyncing .env file to $TARGET..."
+rsync --perms --info=progress2 \
+    backend/.env \
+    "$TARGET:/home/bewerbungshelfer/.env"
+
+echo "Successfully deployed to $TARGET."
+
+# Postgres
+echo "Setting up the database..."
+ssh "$TARGET" "
+    systemctl enable postgresql
+    systemctl start postgresql
+
+    createdb_command=\"SELECT 'CREATE DATABASE cover_letter;' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'cover_letter');\"
+    sudo -u postgres psql -c \"\$createdb_command\"
+"
+echo "Finished setting up the database."
+
+echo "Setting up the webserver..."
+ssh "$TARGET" "
+    systemctl daemon-reload
+    systemctl enable bewerbungshelfer
+    systemctl restart bewerbungshelfer
+
+    # Check if Nginx is active, start/reload accordingly
+    if systemctl is-active --quiet nginx; then
+        echo 'Nginx is running. Reloading Nginx configuration.'
+        systemctl reload nginx
+    else
+        echo 'Nginx is not running. Starting Nginx.'
+        systemctl start nginx || systemctl status nginx
+    fi
+    echo 'Finished setting up the webserver'
+"

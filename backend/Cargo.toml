@@ -1,0 +1,16 @@
+[workspace]
+resolver = "2"
+
+members = [
+	"cover-letter",
+  "claid",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+authors = [
+  "Gunther Bidlingmaier <mail@bidlingmaier.net>",
+  "Martin E. Bidlingmaier <martin.bidlingmaier@mbid.me>",
+]
+description = "Bewerbungshelfer"

@@ -1,0 +1,76 @@
+[package]
+name = "cover-letter"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = ">= 0", features = ["macros", "rt-multi-thread", "process"] }
+anyhow = ">= 0"
+axum = { version = ">= 0", features = ["multipart"] }
+axum-extra = { version = ">= 0", features = ["typed-header", "cookie"] }
+lettre = { version = ">= 0", features = ["tokio1", "tokio1-native-tls", "file-transport"] }
+maud = ">= 0"
+sqlx = { version = ">= 0", features = ["runtime-tokio-native-tls", "postgres", "chrono", "uuid"] }
+mailparse = ">= 0"
+async-trait = ">= 0"
+chrono = { version = ">= 0", features = ["serde"] }
+rand = ">= 0"
+sha2 = ">= 0"
+serde = { version = ">= 0", features = ["derive"] }
+strum = ">= 0"
+strum_macros = ">= 0"
+base16ct = { version = ">= 0", features = ["alloc"] }
+tower-http = { version = ">= 0", features = ["fs", "trace"] }
+tower = ">= 0"
+http = ">= 0"
+axum-macros = ">= 0"
+hyper = { version = ">= 0", features = ["full", "client"] }
+tokio-util = ">= 0"
+async-stream = ">= 0"
+bytes = ">= 0"
+async-openai = ">= 0"
+reqwest = ">= 0"
+tempfile = ">= 0"
+serde_json = ">= 0"
+futures = ">= 0"
+tower-cookies = ">= 0"
+uuid = { version = ">= 0", features = ["v4", "serde"] }
+tokio-stream = { version = ">= 0", features = ["sync"] }
+indoc = ">= 0"
+tracing = ">= 0"
+either = ">= 0"
+serde_urlencoded = ">= 0"
+serde_with = ">= 0"
+regex = ">= 0"
+once_cell = ">= 0"
+thiserror = ">= 0"
+itertools = ">= 0"
+log = ">= 0"
+url = ">= 0"
+urlencoding = ">= 0"
+lazy_static = ">= 0"
+pdf-extract = ">= 0"
+askama = ">= 0"
+async-stripe = { version = ">= 0", features = ["runtime-tokio-hyper"] }
+json_comments = ">= 0"
+reqwest-eventsource = ">= 0"
+scopeguard = ">= 0"
+base64 = ">= 0"
+schemars = { version = ">= 0", features = ["chrono"] }
+ts-rs = { version = ">= 0", features = ["uuid-impl", "chrono-impl"] }
+dashmap = ">= 0"
+infer = ">= 0"
+claid = { path = "../claid" }
+zip = ">= 0"
+hex = ">= 0"
+openssl = { version = ">= 0", features = ["vendored"] }
+
+[features]
+credentials = []
+mail = ["credentials"]
+production = ["credentials", "mail"]
+integration = ["credentials", "mail"]
+cheap = []
+admin = []

@@ -1,0 +1,58 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@microsoft/fetch-event-source": "*",
+    "@testing-library/jest-dom": "*",
+    "@testing-library/react": "*",
+    "@testing-library/user-event": "*",
+    "@types/jest": "*",
+    "@types/node": "*",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "bootstrap": "*",
+    "bootstrap-icons": "*",
+    "date-fns": "*",
+    "react": "*",
+    "react-cookie": "*",
+    "react-datepicker": "*",
+    "react-dom": "*",
+    "react-icons": "*",
+    "react-joyride": "*",
+    "react-markdown": "*",
+    "react-scripts": "*",
+    "recharts": "*",
+    "typescript": "*",
+    "wouter": "*"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-private-property-in-object": "*",
+    "prettier": "*",
+    "typescript-language-server": "*"
+  }
+}

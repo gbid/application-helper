@@ -1,0 +1,13 @@
+[Unit]
+Description=Bewerbungshelfer service
+After=network.target
+
+[Service]
+User=bewerbungshelfer
+Group=bewerbungshelfer
+WorkingDirectory=/home/bewerbungshelfer
+ExecStart=/home/bewerbungshelfer/backend --database-url=postgres://postgres:foo@localhost/cover_letter
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
